@@ -118,6 +118,8 @@ void Octree::create(const ofMesh & mesh, int numLevels) {
 	// 
 	int level = 0;
 	root.box = meshBounds(mesh);
+ 
+    //*******// could prolly just have root points point to mesh.verts
 	for (int i = 0; i < mesh.getNumVertices(); i++) {
 		root.points.push_back(i);
 	}

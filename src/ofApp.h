@@ -6,6 +6,8 @@
 #include "ray.h"
 #include "Octree.h"
 #include "ofxGui.h"
+#include  "ParticleSystem.h"
+#include  "ParticleEmitter.h"
 /*
 class TreeNode {
 public:
@@ -78,13 +80,20 @@ class ofApp : public ofBaseApp{
 		ofVec3f selectedPoint;
 		ofVec3f intersectPoint;
     
-    //TreeNode root;
-    Octree tree;
-    int levels;
-    int currLevel;
+        //TreeNode root;
+        Octree tree;
+        int levels;
+        int currLevel;
 
-    ofxIntSlider levelSlider;
-    ofxPanel gui;
+        ofxIntSlider levelSlider;
+        ofxPanel gui;
     
-		const float selectionRange = 4.0;
+        const float selectionRange = 4.0;
+
+        /* particle Stuff*/
+        Particle p;
+        ParticleSystem particle;
+        ThrustForce * tf;
+        ThrustForce * tf2;
+        ParticleEmitter emitter;
 };

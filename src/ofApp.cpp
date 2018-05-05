@@ -57,32 +57,8 @@ void ofApp::setup(){
     
 	boundingBox = meshBounds(mars.getMesh(0));
 	
-	//  Test Box Subdivide
-	//
-    /*
-     subDivideBox8(boundingBox, level1);
-     subDivideBox8(level1[0], level2);
-     subDivideBox8(level2[0], level3);
-     subDivideBox8(level3[0], level4);
-     subDivideBox8(level4[0], level5);
-     subDivideBox8(level5[0], level6);
-     */
     
-    //Node for octree
-    //root.box = boundingBox;
-    //vector<ofIndexType> temp = mars.getMesh(0).getIndices();
-    
-    /*
-    cout << "Box MaxX: " << root.box.max().x() << endl;
-    cout << "Box MaxY: " << root.box.max().y() << endl;
-    cout << "Box MaxZ: " << root.box.max().z() << endl;
-    */
-    
-    //for (ofIndexType a : temp) {
-    //    root.points.push_back(a);
-    //}
-    //cout << root.points.size() << endl;
-    
+    /* Tree Setup */
     float treeStart = ofGetElapsedTimeMillis();
     
     //create Octree to x levels
@@ -98,6 +74,24 @@ void ofApp::setup(){
     
     gui.setup();
     gui.add(levelSlider.setup("Draw Levels", 5, 0, 15));
+    
+    
+    
+    /* particle Setup */
+    p.position = ofVec3f(0,4,0);
+    p.radius = .5;
+    particle.add(p);
+    
+    tf = new ThrustForce(ofVec3f(0,0,0));
+    tf2 = new ThrustForce(ofVec3f(0,0,0));
+    
+    particle.addForce(tf);
+    particle.setLifespan(1000);
+    emitter.sys->addForce(tf2);
+    
+    emitter.setEmitterType(DirectionalEmitter);
+    emitter.setLifespan(1000);
+    emitter.setPosition(particle.particles[0].position);
 }
 
 //--------------------------------------------------------------
@@ -105,7 +99,10 @@ void ofApp::setup(){
 //
 void ofApp::update() {
     levels = levelSlider;
-}
+    
+    particle.update();
+    emitter.setPosition(particle.particles[0].position);
+    emitter.update();}
 //--------------------------------------------------------------
 void ofApp::draw(){
 
@@ -155,39 +152,15 @@ void ofApp::draw(){
 	
 	ofNoFill();
 	ofSetColor(ofColor::white);
-
-    //Draw levels
-    //drawTree(root, levels, currLevel);
-    
-    /*
-	ofSetColor(ofColor::red);
-	for (int i=0; i < level1.size(); i++)
-		drawBox(level1[i]);
-
-	ofSetColor(ofColor::blue);
-	for (int i = 0; i < level2.size(); i++)
-		drawBox(level2[i]);
-
-	ofSetColor(ofColor::yellow);
-	for (int i = 0; i < level3.size(); i++)
-		drawBox(level3[i]);
-
-    ofSetColor(ofColor::green);
-    for (int i = 0; i < level4.size(); i++)
-        drawBox(level4[i]);
-    
-    ofSetColor(ofColor::purple);
-    for (int i = 0; i < level5.size(); i++)
-        drawBox(level5[i]);
-
-    tree.draw();
-    drawTree(root, levels, currLevel);
-    */
     
     //draw to 5 levels
     tree.draw(levels, currLevel);
     
 	ofPopMatrix();
+ 
+    particle.draw();
+    emitter.draw();
+    
 	cam.end();
 }
 
