@@ -95,8 +95,10 @@ void ofApp::setup(){
     
     
     burger.model.loadModel("geo/burger/burger.obj");
+    burger.model.setScale(.005,.005,.005);
     burger.modelLoaded = true;
     burger.sys = particle;
+
 }
 
 //--------------------------------------------------------------
