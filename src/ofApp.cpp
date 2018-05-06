@@ -92,6 +92,11 @@ void ofApp::setup(){
     emitter.setEmitterType(DirectionalEmitter);
     emitter.setLifespan(1000);
     emitter.setPosition(particle.particles[0].position);
+    
+    
+    burger.model.loadModel("geo/burger/burger.obj");
+    burger.modelLoaded = true;
+    burger.sys = particle;
 }
 
 //--------------------------------------------------------------
@@ -100,9 +105,11 @@ void ofApp::setup(){
 void ofApp::update() {
     levels = levelSlider;
     
-    particle.update();
-    emitter.setPosition(particle.particles[0].position);
-    emitter.update();}
+    //particle.update();
+    emitter.setPosition(burger.sys.particles[0].position);
+    emitter.update();
+    burger.update();
+}
 //--------------------------------------------------------------
 void ofApp::draw(){
 
@@ -142,23 +149,25 @@ void ofApp::draw(){
 		ofSetColor(ofColor::green);
 		mars.drawVertices();
 	}
-
+    
+    /*
 	// highlight selected point (draw sphere around selected point)
 	//
 	if (bPointSelected) {
 		ofSetColor(ofColor::blue);
 		ofDrawSphere(selectedPoint, .1);
 	}
-	
+	*/
 	ofNoFill();
 	ofSetColor(ofColor::white);
     
     //draw to 5 levels
-    tree.draw(levels, currLevel);
+    //tree.draw(levels, currLevel);
     
 	ofPopMatrix();
  
-    particle.draw();
+    burger.draw();
+    //particle.draw();
     emitter.draw();
     
 	cam.end();
@@ -232,9 +241,43 @@ void ofApp::keyPressed(int key) {
 		bCtrlKeyDown = true;
 		break;
 	case OF_KEY_SHIFT:
+            emitter.stop();
 		break;
 	case OF_KEY_DEL:
 		break;
+    
+    case OF_KEY_UP:
+            emitter.start();
+            emitter.setRate(8);
+            emitter.setVelocity(ofVec3f(0,15,0));
+            tf->add(ofVec3f(0,-.75,0));
+            tf2->add(ofVec3f(0,.75,0));
+            //soundPlayer.play();
+        break;
+    case OF_KEY_DOWN:
+            emitter.start();
+            emitter.setRate(8);
+            emitter.setVelocity(ofVec3f(0,-15,0));
+            tf->add(ofVec3f(0,.75,0));
+            tf2->add(ofVec3f(0,-.75,0));
+            //soundPlayer.play();
+        break;
+    case OF_KEY_LEFT:
+            emitter.start();
+            emitter.setRate(8);
+            emitter.setVelocity(ofVec3f(-15,0,0));
+            tf->add(ofVec3f(.75,0,0));
+            tf2->add(ofVec3f(-.75,0,0));
+            //soundPlayer.play();
+        break;
+    case OF_KEY_RIGHT:
+            emitter.start();
+            emitter.setRate(8);
+            emitter.setVelocity(ofVec3f(15,0,0));
+            tf->add(ofVec3f(-.75,0,0));
+            tf2->add(ofVec3f(.75,0,0));
+            //soundPlayer.play();
+        break;
 	default:
 		break;
 	}
@@ -297,31 +340,9 @@ void ofApp::mousePressed(int x, int y, int button) {
     }
     else
         bPointSelected = false;
-    /*
-    if (level5[1].intersect(ray, -100, 100)) {
-        cout << "intersects" << endl;
-        ofSetColor(0, 0, 255);
-        ofDrawSphere(x, y, 100);
-    }
-     */
 }
 
-void ofApp::createTree(TreeNode &node) {
-    //Check if entire mesh is in bounding box
-    /*
-    Vector3 boxMax = boundingBox.max();
-    Vector3 boxMin = boundingBox.min();
-    ofMesh mesh = mars.getMesh(0);
-    
-    vector<ofVec3f> vertices = mesh.getVertices();
-    for (int i = 0; i < vertices.size(); i++) {
-        if(!boundingBox.inside(Vector3(vertices[i].x,vertices[i].y,vertices[i].z))) return;
-    }
-    */
-    
-    //vector<Box> boxes;
-    //subDivideBox8(node.box, boxes);
-}
+
 
 //Return an array of points
 //Referenced from Kevin Smith 2018 README file

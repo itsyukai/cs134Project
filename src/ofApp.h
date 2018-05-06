@@ -6,25 +6,11 @@
 #include "ray.h"
 #include "Octree.h"
 #include "ofxGui.h"
-#include  "ParticleSystem.h"
-#include  "ParticleEmitter.h"
-/*
-class TreeNode {
-public:
-    
-    void setup();
-    void update();
-    void draw();
-    
-    bool bSelected;
-    
-    //TreeNode *parent;
-    vector<TreeNode> children;
-    //vector<int> points;
-    vector<int> points;
-    Box box;
-};
-*/
+#include "ParticleSystem.h"
+#include "ParticleEmitter.h"
+#include "Burger.h"
+
+
 class ofApp : public ofBaseApp{
 
 	public:
@@ -96,4 +82,6 @@ class ofApp : public ofBaseApp{
         ThrustForce * tf;
         ThrustForce * tf2;
         ParticleEmitter emitter;
+    
+        Burger burger;
 };

@@ -54,7 +54,7 @@ void ParticleEmitter::draw() {
 	if (visible) {
 		switch (type) {
 		case DirectionalEmitter:
-			ofDrawSphere(position, radius/10);  // just draw a small sphere for point emitters 
+			//ofDrawSphere(position, radius/10);  // just draw a small sphere for point emitters 
 			break;
 		case SphereEmitter:
 		case RadialEmitter:
