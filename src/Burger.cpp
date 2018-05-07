@@ -20,3 +20,6 @@ void Burger::update(){
     sys.update();
     model.setPosition(sys.particles[0].position.x,sys.particles[0].position.y,sys.particles[0].position.z);
 }
+
+
+

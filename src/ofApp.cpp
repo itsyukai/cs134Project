@@ -19,7 +19,18 @@
 //  Please document/comment all of your work !
 //  Have Fun !!
 //
-//  Student Name:   Jonathan Su
+// Student Names:
+//    Jonathan Su:
+//      - Provided Octree Solution
+//      - Found Burger Models
+//      - Tested Emmitter
+//    Yukai Yang
+//      - Combined Midterm and Octree Solution
+//      - Imported Burger Model
+//      - Wrote Collision detector
+//    David
+//      - Provided Midterm Solution
+//      - Tested Camera
 //  Date: 04/19/2018
 
 
@@ -98,6 +109,8 @@ void ofApp::setup(){
     burger.model.setScale(.005,.005,.005);
     burger.modelLoaded = true;
     burger.sys = particle;
+    burgerBBox = meshBounds(burger.model.getMesh(0));
+
 
 }
 
@@ -111,6 +124,7 @@ void ofApp::update() {
     emitter.setPosition(burger.sys.particles[0].position);
     emitter.update();
     burger.update();
+    collisionDetect();
 }
 //--------------------------------------------------------------
 void ofApp::draw(){
@@ -119,7 +133,7 @@ void ofApp::draw(){
 	ofBackground(ofColor::black);
 //	cout << ofGetFrameRate() << endl;
     ofSetDepthTest(false);
-    gui.draw();
+    //gui.draw();
     ofSetDepthTest(true);
     
 	cam.begin();
@@ -325,6 +339,7 @@ void ofApp::mouseMoved(int x, int y ){
 
 //--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button) {
+    /*
     ofVec3f mouse(mouseX, mouseY);
     ofVec3f rayPoint = cam.screenToWorld(mouse);
     ofVec3f rayDir = rayPoint - cam.getPosition();
@@ -342,6 +357,7 @@ void ofApp::mousePressed(int x, int y, int button) {
     }
     else
         bPointSelected = false;
+    */
 }
 
 
@@ -591,5 +607,22 @@ Box ofApp::meshBounds(const ofMesh & mesh) {
         else if (v.z < min.z) min.z = v.z;
     }
     return Box(Vector3(min.x, min.y, min.z), Vector3(max.x, max.y, max.z));
+}
+
+// Yukai Yang
+// Taken from Kevin Smith's instructional video
+void ofApp:: collisionDetect() {
+    //cout<< "check"<<endl;
+    Vector3 c = burgerBBox.center();
+    contactPt = ofVec3f(c.x(),c.y() - burgerBBox.height()/2, c.z()) + burger.getPosition();
+    ofVec3f vel = burger.sys.particles[0].velocity;
+    
+    if(vel.y > 0) return;
+    TreeNode node;
+    if(tree.intersect (contactPt,tree.root,node)) {
+        bCollision = true;
+        cout << "collision" <<endl;
+    }
+    
 }
 

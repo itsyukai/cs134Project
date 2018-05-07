@@ -84,4 +84,8 @@ class ofApp : public ofBaseApp{
         ParticleEmitter emitter;
     
         Burger burger;
+        Box burgerBBox;
+        void collisionDetect();
+        bool bCollision;
+        ofVec3f contactPt;
 };
