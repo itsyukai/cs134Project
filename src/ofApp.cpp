@@ -96,17 +96,21 @@ void ofApp::setup(){
     tf = new ThrustForce(ofVec3f(0,0,0));
     tf2 = new ThrustForce(ofVec3f(0,0,0));
     
+    impulseForce = new ImpulseForce();
+    restitution = 0.1;
+    
+    particle.addForce(impulseForce);
     particle.addForce(tf);
-    particle.setLifespan(1000);
+    particle.setLifespan(100);
     emitter.sys->addForce(tf2);
     
     emitter.setEmitterType(DirectionalEmitter);
-    emitter.setLifespan(1000);
+    emitter.setLifespan(60);
     emitter.setPosition(particle.particles[0].position);
     
     
     burger.model.loadModel("geo/burger/burger.obj");
-    burger.model.setScale(.005,.005,.005);
+    burger.model.setScale(.0025,.0025,.0025);
     burger.modelLoaded = true;
     burger.sys = particle;
     burgerBBox = meshBounds(burger.model.getMesh(0));
@@ -264,7 +268,7 @@ void ofApp::keyPressed(int key) {
     
     case OF_KEY_UP:
             emitter.start();
-            emitter.setRate(8);
+            emitter.setRate(3);
             emitter.setVelocity(ofVec3f(0,15,0));
             tf->add(ofVec3f(0,-.75,0));
             tf2->add(ofVec3f(0,.75,0));
@@ -272,7 +276,7 @@ void ofApp::keyPressed(int key) {
         break;
     case OF_KEY_DOWN:
             emitter.start();
-            emitter.setRate(8);
+            emitter.setRate(3);
             emitter.setVelocity(ofVec3f(0,-15,0));
             tf->add(ofVec3f(0,.75,0));
             tf2->add(ofVec3f(0,-.75,0));
@@ -280,7 +284,7 @@ void ofApp::keyPressed(int key) {
         break;
     case OF_KEY_LEFT:
             emitter.start();
-            emitter.setRate(8);
+            emitter.setRate(3);
             emitter.setVelocity(ofVec3f(-15,0,0));
             tf->add(ofVec3f(.75,0,0));
             tf2->add(ofVec3f(-.75,0,0));
@@ -288,7 +292,7 @@ void ofApp::keyPressed(int key) {
         break;
     case OF_KEY_RIGHT:
             emitter.start();
-            emitter.setRate(8);
+            emitter.setRate(3);
             emitter.setVelocity(ofVec3f(15,0,0));
             tf->add(ofVec3f(-.75,0,0));
             tf2->add(ofVec3f(.75,0,0));
@@ -622,6 +626,11 @@ void ofApp:: collisionDetect() {
     if(tree.intersect (contactPt,tree.root,node)) {
         bCollision = true;
         cout << "collision" <<endl;
+        
+        // Impulse force
+        ofVec3f norm = ofVec3f(0,1,0);
+        ofVec3f f = (restitution + 1.0) * ((-vel.dot(norm))*norm);
+        impulseForce->apply(ofGetFrameRate() * f);
     }
     
 }

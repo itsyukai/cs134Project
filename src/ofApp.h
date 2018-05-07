@@ -81,6 +81,7 @@ class ofApp : public ofBaseApp{
         ParticleSystem particle;
         ThrustForce * tf;
         ThrustForce * tf2;
+        ImpulseForce * impulseForce;
         ParticleEmitter emitter;
     
         Burger burger;
@@ -88,4 +89,5 @@ class ofApp : public ofBaseApp{
         void collisionDetect();
         bool bCollision;
         ofVec3f contactPt;
+        float restitution;
 };
