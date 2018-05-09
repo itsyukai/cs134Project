@@ -38,7 +38,7 @@ bool Box::intersect(const Ray &r, float t0, float t1) const {
 
 //Return true/false if point is inside Box
 //Referenced from Kevin Smith 2018 README file
-bool Box::inside(const Vector3 & point) {
+bool Box::inside(const Vector3 & point) const{
     return ((point.x() >= parameters[0].x() && point.x() <= parameters[1].x()) &&
             (point.y() >= parameters[0].y() && point.y() <= parameters[1].y()) &&
             (point.z() >= parameters[0].z() && point.z() <= parameters[1].z()));

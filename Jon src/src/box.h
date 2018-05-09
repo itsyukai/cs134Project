@@ -25,13 +25,16 @@ class Box {
     }
     // (t0, t1) is the interval for valid hits
     bool intersect(const Ray &, float t0, float t1) const;
-    bool inside(const Vector3 &point);
+    bool inside(const Vector3 &point) const;
     
     // corners
     Vector3 parameters[2];
     Vector3 min() {return parameters[0]; }
     Vector3 max() {return parameters[1]; }
     Vector3 center() {return ((max() - min()) / 2 + min()); }
+    
+    float height() {return parameters[1].y() - parameters[0].y(); }
+    
 };
 
 #endif // _BOX_H_

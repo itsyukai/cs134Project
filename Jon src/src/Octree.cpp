@@ -2,7 +2,7 @@
 //  Kevin M. Smith - Basic Octree Class - CS134/CS 235 4/18/18
 //
 //   (c) Kevin M. Smith - 2018  - Not for Redistribution without Permission
-//
+//  Student Name: Jon Su
 
 #include "Octree.h"
 
@@ -193,6 +193,27 @@ bool Octree::intersect(const Ray &ray, const TreeNode & node, TreeNode & nodeRtn
         }
         for (TreeNode child : node.children) {
             res = intersect(ray, child, nodeRtn);
+            if (res)
+                break;
+        }
+    }
+    return res;
+}
+
+// Yukai Yang
+// written to work like Jon's intersect function, but with a point instead
+bool Octree::intersect(const ofVec3f &point, const TreeNode & node, TreeNode & nodeRtn) {
+    bool res = false;
+    if (node.box.inside(Vector3(point.x,point.y,point.z))) {
+        
+        if (node.points.size() < 15 && node.points.size() > 0) {
+        //if (node.points.size() == 1) {
+            cout << "Got one" << endl;
+            nodeRtn = node;
+            return true;
+        }
+        for (TreeNode child : node.children) {
+            res = intersect(point, child, nodeRtn);
             if (res)
                 break;
         }

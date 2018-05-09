@@ -11,7 +11,7 @@ Particle::Particle() {
 	forces.set(0, 0, 0);
 	lifespan = 5;
 	birthtime = 0;
-	radius = .05;
+	radius = .1;
 	damping = .99;
 	mass = 1;
 	color = ofColor::aquamarine;
@@ -20,8 +20,7 @@ Particle::Particle() {
 void Particle::draw() {
 	ofSetColor(color);
 //	ofSetColor(ofMap(age(), 0, lifespan, 255, 10), 0, 0);
-	//ofDrawSphere(position, radius);
-    ofDrawCircle(position, radius);
+	ofDrawCircle(position, radius);
 }
 
 // write your own integrator here.. (hint: it's only 3 lines of code)

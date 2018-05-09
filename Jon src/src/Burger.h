@@ -22,4 +22,6 @@ public:
     
     void draw();
     void update();
+    
+    ofVec3f getPosition() {return sys.particles[0].position;};
 };

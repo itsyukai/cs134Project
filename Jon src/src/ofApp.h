@@ -81,8 +81,19 @@ class ofApp : public ofBaseApp{
         ParticleSystem particle;
         ThrustForce * tf;
         ThrustForce * tf2;
+        ImpulseForce * impulseForce;
+    GravityForce * gf;
     ImpulseRadialForce * ipf;
         ParticleEmitter emitter;
     
+    ofSoundPlayer thrusterSound;
+    ofImage background;
+    
         Burger burger;
+        Box burgerBBox;
+        Box a;
+        void collisionDetect();
+        bool bCollision;
+        ofVec3f contactPt;
+        float restitution;
 };

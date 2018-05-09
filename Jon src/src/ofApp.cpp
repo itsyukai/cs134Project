@@ -19,7 +19,18 @@
 //  Please document/comment all of your work !
 //  Have Fun !!
 //
-//  Student Name:   Jonathan Su
+// Student Names:
+//    Jonathan Su:
+//      - Provided Octree Solution
+//      - Found Burger Models
+//      - Tested Emmitter
+//    Yukai Yang
+//      - Combined Midterm and Octree Solution
+//      - Imported Burger Model
+//      - Wrote Collision detector
+//    David
+//      - Provided Midterm Solution
+//      - Tested Camera
 //  Date: 04/19/2018
 
 
@@ -52,19 +63,21 @@ void ofApp::setup(){
 	//
 	initLightingAndMaterials();
 
-	mars.loadModel("geo/mars-low-v2.obj");
-    //mars.loadModel("geo/island/island.obj");
-	//mars.setScaleNormalization(false);
-    cout << mars.getMesh(0).getVertices().size() << endl;
-    ofMesh m = mars.getMesh(0);
-	boundingBox = meshBounds(m);
+    //load background image
+    background.load("geo/background/background.jpg");
+    
+	//mars.loadModel("geo/mars-low-v2.obj");
+    mars.loadModel("geo/island/island.obj");
+	mars.setScaleNormalization(false);
+    
+	boundingBox = meshBounds(mars.getMesh(0));
 	
     
     /* Tree Setup */
     float treeStart = ofGetElapsedTimeMillis();
     
     //create Octree to x levels
-    tree.create(m,100);
+    tree.create(mars.getMesh(0),20);
     
     float treeEnd = ofGetElapsedTimeMillis();
     cout << "Time creating Octree: " << treeEnd - treeStart << " milliseconds" << endl;
@@ -77,23 +90,26 @@ void ofApp::setup(){
     gui.setup();
     gui.add(levelSlider.setup("Draw Levels", 5, 0, 15));
     
+    /* particle Setup */
+    p.position = ofVec3f(0,4,0);
+    p.radius = .5;
+    particle.add(p);
     
     //create forces
     tf = new ThrustForce(ofVec3f(0,0,0));
     tf2 = new ThrustForce(ofVec3f(0,0,0));
     ipf = new ImpulseRadialForce(100);
+    gf = new GravityForce(ofVec3f(0,-.1,0));
+    impulseForce = new ImpulseForce();
+    restitution = 0.2;
     
-    /* particle Setup */
-    p.position = ofVec3f(0,4,0);
-    p.radius = .5;
-    particle.add(p);
-    particle.setLifespan(100);
+    particle.addForce(impulseForce);
     particle.addForce(tf);
+    particle.addForce(gf);
+    particle.setLifespan(100);
     
-    emitter.sys->addForce(ipf);
     emitter.sys->addForce(tf2);
-    
-    //emitter.setEmitterType(RadialEmitter);
+    emitter.sys->addForce(ipf);
     
     emitter.setRandomLife(true);
     emitter.setLifespan(10000);
@@ -104,10 +120,27 @@ void ofApp::setup(){
     emitter.setRate(0);
     emitter.start();
     
+    
     burger.model.loadModel("geo/burger/burger.obj");
-    burger.model.setScale(.005,.005,.005);
     burger.modelLoaded = true;
     burger.sys = particle;
+    burger.model.setScaleNormalization(false);
+    
+    burger.model.setScale(.5,.5,.5);
+
+    Box b = meshBounds(burger.model.getMesh(0));
+    burgerBBox = Box(b.min() * .5, b.max() *.5);
+    
+    thrusterSound.load("sounds/thrusterSound.mp3");
+    //thrusterSound.setLoop(true);
+    thrusterSound.setMultiPlay(true);
+//    cout <<burger.model.getNumMeshes();
+//    ofVec3f min = burger.model.getSceneMin();
+//    ofVec3f max = burger.model.getSceneMax();
+//
+//    cout << "min: " <<min.x <<", "<< min.y <<", "<<min.z<<endl;
+//    cout << "max: " <<max.x <<", "<< max.y <<", "<<max.z<<endl;
+//    a = Box(Vector3(min.x,min.y,min.z),Vector3(max.x,max.y,max.z));
 
 }
 
@@ -121,15 +154,19 @@ void ofApp::update() {
     emitter.setPosition(burger.sys.particles[0].position);
     emitter.update();
     burger.update();
+    collisionDetect();
+    //    burgerBBox = meshBounds(burger.model.getMesh(0));
+
 }
 //--------------------------------------------------------------
 void ofApp::draw(){
-
 //	ofBackgroundGradient(ofColor(20), ofColor(0));   // pick your own backgroujnd
 	ofBackground(ofColor::black);
 //	cout << ofGetFrameRate() << endl;
     ofSetDepthTest(false);
-    gui.draw();
+    ofSetColor(255,255,255,255);
+    background.draw(0,0, 1200,1200);
+    //gui.draw();
     ofSetDepthTest(true);
     
 	cam.begin();
@@ -172,16 +209,23 @@ void ofApp::draw(){
 	*/
 	ofNoFill();
 	ofSetColor(ofColor::white);
+    drawBox(boundingBox);
+    
+    //ofVec3f p = burger.model.getPosition();
+    //Vector3 pos = Vector3(p.x,p.y,p.z);
+    //drawBox(burgerBBox);
+    //drawBox(a);
     
     //draw to 5 levels
     //tree.draw(levels, currLevel);
-    
-	ofPopMatrix();
+    //tree.draw(15, currLevel);
+
  
     burger.draw();
     //particle.draw();
     emitter.draw();
     
+    ofPopMatrix();
 	cam.end();
 }
 
@@ -225,6 +269,15 @@ void ofApp::keyPressed(int key) {
 		break;
 	case 'H':
 	case 'h':
+        break;
+    case 'I':
+    case 'i':
+    {
+        ofVec3f vel = burger.sys.particles[0].velocity;
+        cout << "velocity: " << vel << endl;
+        impulseForce->apply(-ofGetFrameRate() * vel);
+        break;
+    }
 		break;
 	case 'r':
 		cam.reset();
@@ -258,42 +311,50 @@ void ofApp::keyPressed(int key) {
 	case OF_KEY_DEL:
 		break;
     
-    case OF_KEY_UP:
+        case OF_KEY_UP:
             emitter.sys->reset();
             emitter.setRate(20);
             emitter.setVelocity(ofVec3f(0,-1,0));
             tf->add(ofVec3f(0,-.2,0));
             tf2->set(ofVec3f(0,0,0));
+            gf->set(ofVec3f(0,-.1,0));
             emitter.start();
-            //soundPlayer.play();
-        break;
-    case OF_KEY_DOWN:
+            if (!thrusterSound.isPlaying())
+                thrusterSound.play();
+            break;
+        case OF_KEY_DOWN:
             emitter.sys->reset();
             emitter.setRate(20);
             emitter.setVelocity(ofVec3f(0,-1,0));
             tf->add(ofVec3f(0,.2,0));
             tf2->set(ofVec3f(0,-10,0));
+            gf->set(ofVec3f(0,-.1,0));
             emitter.start();
-            //soundPlayer.play();
-        break;
-    case OF_KEY_LEFT:
+            if (!thrusterSound.isPlaying())
+                thrusterSound.play();
+            break;
+        case OF_KEY_LEFT:
             emitter.sys->reset();
             emitter.setRate(20);
             emitter.setVelocity(ofVec3f(-1,-2,0));
             tf->add(ofVec3f(.2,0,0));
             tf2->set(ofVec3f(-10,0,0));
+            gf->set(ofVec3f(0,-.1,0));
             emitter.start();
-            //soundPlayer.play();
-        break;
-    case OF_KEY_RIGHT:
+            if (!thrusterSound.isPlaying())
+                thrusterSound.play();
+            break;
+        case OF_KEY_RIGHT:
             emitter.sys->reset();
             emitter.setRate(20);
             emitter.setVelocity(ofVec3f(1,-2,0));
             tf->add(ofVec3f(-.2,0,0));
             tf2->set(ofVec3f(10,0,0));
+            gf->set(ofVec3f(0,-.1,0));
             emitter.start();
-            //soundPlayer.play();
-        break;
+            if (!thrusterSound.isPlaying())
+                thrusterSound.play();
+            break;
 	default:
 		break;
 	}
@@ -324,40 +385,40 @@ void ofApp::keyReleased(int key) {
 		break;
 	case OF_KEY_SHIFT:
 		break;
-    case OF_KEY_UP:
+        case OF_KEY_UP:
             emitter.setRate(0);
             emitter.setVelocity(ofVec3f(0,0,0));
-            tf->set(ofVec3f(0,-.1,0));
+            tf->set(ofVec3f(0,0,0));
             tf2->set(ofVec3f(0,0,0));
-            //soundPlayer.play();
+            thrusterSound.stop();
             emitter.sys->reset();
             break;
-    case OF_KEY_DOWN:
+        case OF_KEY_DOWN:
             emitter.setRate(0);
             emitter.setVelocity(ofVec3f(0,0,0));
-            tf->set(ofVec3f(0,-.1,0));
+            tf->set(ofVec3f(0,0,0));
             tf2->set(ofVec3f(0,0,0));
-            //soundPlayer.play();
+            thrusterSound.stop();
             emitter.sys->reset();
             break;
-    case OF_KEY_LEFT:
+        case OF_KEY_LEFT:
             emitter.setRate(0);
             emitter.setVelocity(ofVec3f(0,0,0));
-            tf->set(ofVec3f(.1,-.1,0));
+            tf->set(ofVec3f(0,0,0));
             tf2->set(ofVec3f(0,0,0));
-            //soundPlayer.play();
+            thrusterSound.stop();
             emitter.sys->reset();
             break;
-    case OF_KEY_RIGHT:
+        case OF_KEY_RIGHT:
             emitter.setRate(0);
             emitter.setVelocity(ofVec3f(0,0,0));
-            tf->set(ofVec3f(-.1,-.1,0));
+            tf->set(ofVec3f(0,0,0));
             tf2->set(ofVec3f(0,0,0));
-            //soundPlayer.play();
+            thrusterSound.stop();
             emitter.sys->reset();
             break;
-    default:
-            break;
+	default:
+		break;
 
 	}
 }
@@ -371,6 +432,7 @@ void ofApp::mouseMoved(int x, int y ){
 
 //--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button) {
+    /*
     ofVec3f mouse(mouseX, mouseY);
     ofVec3f rayPoint = cam.screenToWorld(mouse);
     ofVec3f rayDir = rayPoint - cam.getPosition();
@@ -388,6 +450,7 @@ void ofApp::mousePressed(int x, int y, int button) {
     }
     else
         bPointSelected = false;
+    */
 }
 
 
@@ -637,5 +700,41 @@ Box ofApp::meshBounds(const ofMesh & mesh) {
         else if (v.z < min.z) min.z = v.z;
     }
     return Box(Vector3(min.x, min.y, min.z), Vector3(max.x, max.y, max.z));
+}
+
+// Yukai Yang
+// Taken from Kevin Smith's instructional video
+void ofApp:: collisionDetect() {
+    //cout<< "check"<<endl;
+    Vector3 c = burgerBBox.center();
+    contactPt = ofVec3f(c.x(),c.y() - burgerBBox.height()/2, c.z()) + burger.getPosition();
+    ofVec3f vel = burger.sys.particles[0].velocity;
+    
+    if(vel.y > 0) return;
+    TreeNode node;
+    
+    if(vel == ofVec3f(0,0,0)) return;
+    if(tree.intersect (contactPt,tree.root,node)) {
+        bCollision = true;
+        cout << "collision" <<endl;
+        
+        // Impulse force
+        ofVec3f norm = ofVec3f(0,1,0);
+        ofVec3f f = (restitution + 1.0) * ((-vel.dot(norm))*norm);
+
+        //impulseForce->apply(ofGetFrameRate() * -vel);
+        tf->set(ofVec3f(0,0,0));
+        tf2-> set(ofVec3f(0,0,0));
+        gf->set(ofVec3f(0,0,0));
+        emitter.setVelocity(ofVec3f(0,10,0));
+        impulseForce->apply(ofGetFrameRate() * f);
+
+//        cout << "velocity: " <<vel <<endl;
+//        cout << "impulse: " << f <<endl;
+//        cout << "framerate: "<< ofGetFrameRate()<<endl;
+//        cout << "new vel: " << burger.sys.particles[0].velocity<<endl;
+        emitter.stop();
+    }
+    
 }
 
