@@ -206,7 +206,7 @@ bool Octree::intersect(const ofVec3f &point, const TreeNode & node, TreeNode & n
     bool res = false;
     if (node.box.inside(Vector3(point.x,point.y,point.z))) {
         
-        if (node.points.size() < 10 && node.points.size() > 0) {
+        if (node.points.size() < 5 && node.points.size() > 0) {
         //if (node.points.size() == 1) {
             //cout << "Got one" << endl;
             nodeRtn = node;

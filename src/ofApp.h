@@ -86,6 +86,7 @@ class ofApp : public ofBaseApp{
     
         Burger burger;
         Box burgerBBox;
+        Box a;
         void collisionDetect();
         bool bCollision;
         ofVec3f contactPt;
