@@ -67,7 +67,7 @@ void ofApp::setup(){
     background.load("geo/background/background.jpg");
     
 	//mars.loadModel("geo/mars-low-v2.obj");
-    mars.loadModel("geo/island/island.obj");
+    mars.loadModel("geo/island2/island.obj");
 	mars.setScaleNormalization(false);
     
 	boundingBox = meshBounds(mars.getMesh(0));
