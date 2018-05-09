@@ -1,0 +1,12 @@
+# Blender MTL File: 'dragonkick.blend'
+# Material Count: 1
+
+newmtl Mesh_0
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.592093 0.404923 0.772900
+Ks 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 1
+map_Kd Image_2D_0002_0008.png
