@@ -20,7 +20,8 @@ Particle::Particle() {
 void Particle::draw() {
 	ofSetColor(color);
 //	ofSetColor(ofMap(age(), 0, lifespan, 255, 10), 0, 0);
-	ofDrawSphere(position, radius);
+	//ofDrawSphere(position, radius);
+    ofDrawCircle(position, radius);
 }
 
 // write your own integrator here.. (hint: it's only 3 lines of code)

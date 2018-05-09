@@ -118,7 +118,7 @@ void TurbulenceForce::updateForce(Particle * particle) {
 //
 ImpulseRadialForce::ImpulseRadialForce(float magnitude) {
 	this->magnitude = magnitude;
-	applyOnce = true;
+	//applyOnce = true;
 }
 
 void ImpulseRadialForce::updateForce(Particle * particle) {

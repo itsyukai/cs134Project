@@ -53,16 +53,18 @@ void ofApp::setup(){
 	initLightingAndMaterials();
 
 	mars.loadModel("geo/mars-low-v2.obj");
-	mars.setScaleNormalization(false);
-    
-	boundingBox = meshBounds(mars.getMesh(0));
+    //mars.loadModel("geo/island/island.obj");
+	//mars.setScaleNormalization(false);
+    cout << mars.getMesh(0).getVertices().size() << endl;
+    ofMesh m = mars.getMesh(0);
+	boundingBox = meshBounds(m);
 	
     
     /* Tree Setup */
     float treeStart = ofGetElapsedTimeMillis();
     
     //create Octree to x levels
-    tree.create(mars.getMesh(0),100);
+    tree.create(m,100);
     
     float treeEnd = ofGetElapsedTimeMillis();
     cout << "Time creating Octree: " << treeEnd - treeStart << " milliseconds" << endl;
@@ -79,7 +81,7 @@ void ofApp::setup(){
     //create forces
     tf = new ThrustForce(ofVec3f(0,0,0));
     tf2 = new ThrustForce(ofVec3f(0,0,0));
-    ipf = new ImpulseRadialForce(1000);
+    ipf = new ImpulseRadialForce(100);
     
     /* particle Setup */
     p.position = ofVec3f(0,4,0);
@@ -95,7 +97,7 @@ void ofApp::setup(){
     
     emitter.setRandomLife(true);
     emitter.setLifespan(10000);
-    emitter.setLifespanRange(ofVec2f(0.01,.1));
+    emitter.setLifespanRange(ofVec2f(0.01,.3));
     emitter.setPosition(particle.particles[0].position);
     emitter.setGroupSize(20);
     emitter.setOneShot(false);
@@ -258,38 +260,38 @@ void ofApp::keyPressed(int key) {
     
     case OF_KEY_UP:
             emitter.sys->reset();
-            emitter.start();
-            emitter.setRate(8);
-            emitter.setVelocity(ofVec3f(0,5,0));
+            emitter.setRate(20);
+            emitter.setVelocity(ofVec3f(0,-1,0));
             tf->add(ofVec3f(0,-.2,0));
-            tf2->add(ofVec3f(0,.2,0));
+            tf2->set(ofVec3f(0,0,0));
+            emitter.start();
             //soundPlayer.play();
         break;
     case OF_KEY_DOWN:
             emitter.sys->reset();
-            emitter.start();
             emitter.setRate(20);
-            emitter.setVelocity(ofVec3f(0,-5,0));
+            emitter.setVelocity(ofVec3f(0,-1,0));
             tf->add(ofVec3f(0,.2,0));
-            tf2->add(ofVec3f(0,-.2,0));
+            tf2->set(ofVec3f(0,-10,0));
+            emitter.start();
             //soundPlayer.play();
         break;
     case OF_KEY_LEFT:
             emitter.sys->reset();
-            emitter.start();
-            emitter.setRate(8);
-            emitter.setVelocity(ofVec3f(-5,0,0));
+            emitter.setRate(20);
+            emitter.setVelocity(ofVec3f(-1,-2,0));
             tf->add(ofVec3f(.2,0,0));
-            tf2->add(ofVec3f(-.2,0,0));
+            tf2->set(ofVec3f(-10,0,0));
+            emitter.start();
             //soundPlayer.play();
         break;
     case OF_KEY_RIGHT:
             emitter.sys->reset();
-            emitter.start();
-            emitter.setRate(8);
-            emitter.setVelocity(ofVec3f(5,0,0));
+            emitter.setRate(20);
+            emitter.setVelocity(ofVec3f(1,-2,0));
             tf->add(ofVec3f(-.2,0,0));
-            tf2->add(ofVec3f(.2,0,0));
+            tf2->set(ofVec3f(10,0,0));
+            emitter.start();
             //soundPlayer.play();
         break;
 	default:
@@ -325,8 +327,8 @@ void ofApp::keyReleased(int key) {
     case OF_KEY_UP:
             emitter.setRate(0);
             emitter.setVelocity(ofVec3f(0,0,0));
-            tf->add(ofVec3f(0,-.1,0));
-            tf2->add(ofVec3f(0,0,0));
+            tf->set(ofVec3f(0,-.1,0));
+            tf2->set(ofVec3f(0,0,0));
             //soundPlayer.play();
             emitter.sys->reset();
             break;
