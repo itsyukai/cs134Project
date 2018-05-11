@@ -47,7 +47,24 @@ class ofApp : public ofBaseApp{
 		void subDivideBox8(const Box &b, vector<Box> & boxList);
 		bool mouseIntersectPlane(ofVec3f planePoint, ofVec3f planeNorm, ofVec3f &point);
 
+		//Cameras and positions
 		ofEasyCam cam;
+		ofVec3f trackingpos;
+		ofVec3f topcampos;
+		ofVec3f sidecampos;
+		bool tracking;
+		bool top;
+		bool side;
+
+		//lights and positions
+		ofLight keyLight, fillLight, rimLight;
+		ofVec3f keypos, fillpos, rimpos;
+		ofxVec3Slider keylightpos;
+		ofxVec3Slider filllightpos;
+		ofxVec3Slider rimLightpos;
+		ofxPanel gui;
+
+		//ofEasyCam cam;
 		ofxAssimpModelLoader mars, rover;
 		ofLight light;
 		Box boundingBox;
@@ -72,7 +89,7 @@ class ofApp : public ofBaseApp{
         int currLevel;
 
         ofxIntSlider levelSlider;
-        ofxPanel gui;
+        //ofxPanel gui;
     
         const float selectionRange = 4.0;
 
@@ -82,7 +99,12 @@ class ofApp : public ofBaseApp{
         ThrustForce * tf;
         ThrustForce * tf2;
         ImpulseForce * impulseForce;
+    GravityForce * gf;
+    ImpulseRadialForce * ipf;
         ParticleEmitter emitter;
+    
+    ofSoundPlayer thrusterSound;
+    ofImage background;
     
         Burger burger;
         Box burgerBBox;

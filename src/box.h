@@ -29,8 +29,8 @@ class Box {
     
     // corners
     Vector3 parameters[2];
-    Vector3 min() {return parameters[0]; }
-    Vector3 max() {return parameters[1]; }
+    Vector3 min() const {return parameters[0]; }
+    Vector3 max() const {return parameters[1]; }
     Vector3 center() {return ((max() - min()) / 2 + min()); }
     
     float height() {return parameters[1].y() - parameters[0].y(); }

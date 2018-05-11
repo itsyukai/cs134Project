@@ -54,16 +54,21 @@ void ofApp::setup(){
 	cam.setDistance(10);
 	cam.setNearClip(.1);
 	cam.setFov(65.5);   // approx equivalent to 28mm in 35mm format
+	cam.setPosition(ofVec3f(-20,50,50));
 	ofSetVerticalSync(true);
 	cam.disableMouseInput();
 	ofEnableSmoothing();
 	ofEnableDepthTest();
-
+	ofEnableLighting();
 	// setup rudimentary lighting 
 	//
-	initLightingAndMaterials();
+	//initLightingAndMaterials();
 
-	mars.loadModel("geo/mars-low-v2.obj");
+    //load background image
+    background.load("geo/background/background.jpg");
+    
+	//mars.loadModel("geo/mars-low-v2.obj");
+    mars.loadModel("geo/island2/island.obj");
 	mars.setScaleNormalization(false);
     
 	boundingBox = meshBounds(mars.getMesh(0));
@@ -73,7 +78,7 @@ void ofApp::setup(){
     float treeStart = ofGetElapsedTimeMillis();
     
     //create Octree to x levels
-    tree.create(mars.getMesh(0),100);
+    tree.create(mars.getMesh(0),20);
     
     float treeEnd = ofGetElapsedTimeMillis();
     cout << "Time creating Octree: " << treeEnd - treeStart << " milliseconds" << endl;
@@ -83,31 +88,38 @@ void ofApp::setup(){
     levels = 5;
     currLevel = 0;
     
-    gui.setup();
-    gui.add(levelSlider.setup("Draw Levels", 5, 0, 15));
-    
-    
+    //gui.setup();
+    //gui.add(levelSlider.setup("Draw Levels", 5, 0, 15));
     
     /* particle Setup */
-    p.position = ofVec3f(0,4,0);
+    p.position = ofVec3f(0,100,0);
     p.radius = .5;
     particle.add(p);
     
+    //create forces
     tf = new ThrustForce(ofVec3f(0,0,0));
     tf2 = new ThrustForce(ofVec3f(0,0,0));
-    
+    ipf = new ImpulseRadialForce(100);
+    gf = new GravityForce(ofVec3f(0,-.1,0));
     impulseForce = new ImpulseForce();
     restitution = 0.2;
     
     particle.addForce(impulseForce);
     particle.addForce(tf);
-    particle.addForce( new GravityForce (ofVec3f(0, -0.25, 0)));
-    particle.setLifespan(100);
-    emitter.sys->addForce(tf2);
+    particle.addForce(gf);
+    particle.setLifespan(1000000000);
     
-    emitter.setEmitterType(DirectionalEmitter);
-    emitter.setLifespan(1);
+    emitter.sys->addForce(tf2);
+    emitter.sys->addForce(ipf);
+    
+    emitter.setRandomLife(true);
+    emitter.setLifespan(10000);
+    emitter.setLifespanRange(ofVec2f(0.01,.3));
     emitter.setPosition(particle.particles[0].position);
+    emitter.setGroupSize(20);
+    emitter.setOneShot(false);
+    emitter.setRate(0);
+    emitter.start();
     
     
     burger.model.loadModel("geo/burger/burger.obj");
@@ -120,13 +132,55 @@ void ofApp::setup(){
     Box b = meshBounds(burger.model.getMesh(0));
     burgerBBox = Box(b.min() * .5, b.max() *.5);
     
-//    cout <<burger.model.getNumMeshes();
-//    ofVec3f min = burger.model.getSceneMin();
-//    ofVec3f max = burger.model.getSceneMax();
-//
-//    cout << "min: " <<min.x <<", "<< min.y <<", "<<min.z<<endl;
-//    cout << "max: " <<max.x <<", "<< max.y <<", "<<max.z<<endl;
-//    a = Box(Vector3(min.x,min.y,min.z),Vector3(max.x,max.y,max.z));
+    thrusterSound.load("sounds/thrusterSound.mp3");
+    //thrusterSound.setLoop(true);
+    thrusterSound.setMultiPlay(true);
+
+	cam.setTarget(burger.getPosition());
+	cam.lookAt(burger.getPosition());
+	trackingpos = mars.getPosition() + ofVec3f(0,50,0);
+
+	/* light setup*/
+	keyLight.setup();
+	keyLight.enable();
+	keyLight.setAreaLight(1, 1);
+	keyLight.setAmbientColor(ofFloatColor(.1, .1, .1));
+	keyLight.setDiffuseColor(ofFloatColor(1, 1, 1));
+	keyLight.setSpecularColor(ofFloatColor(1, 1, 1));
+	keyLight.rotate(45, ofVec3f(0, 1, 0));
+	keyLight.rotate(-45, ofVec3f(1, 0, 0));
+	keyLight.setPosition(ofVec3f(-18, 100, -122));
+
+	//gui.setup();
+	//gui.add(keylightpos.setup("KeyLightPosition", ofVec3f(0, 0, 0), ofVec3f(-200, -200, -200), ofVec3f(200, 200, 200)));
+
+	fillLight.setup();
+	fillLight.enable();
+	fillLight.setSpotlight();
+	fillLight.setScale(.05);
+	fillLight.setSpotlightCutOff(15);
+	fillLight.setAttenuation(2, .001, .001);
+	fillLight.setAmbientColor(ofFloatColor(0.1, 0.1, 0.1));
+	fillLight.setDiffuseColor(ofFloatColor(1, 1, 1));
+	fillLight.setSpecularColor(ofFloatColor(1, 1, 1));
+	fillLight.rotate(-10, ofVec3f(1, 0, 0));
+	fillLight.rotate(-45, ofVec3f(0, 1, 0));
+	fillLight.setPosition(ofVec3f(-81, 81, 94));
+	//gui.add(filllightpos.setup("FillLightPosition", ofVec3f(0, 0, 0), ofVec3f(-200, -200, -200), ofVec3f(200, 200, 200)));
+
+	rimLight.setup();
+	rimLight.enable();
+	rimLight.setSpotlight();
+	rimLight.setScale(.05);
+	rimLight.setSpotlightCutOff(30);
+	rimLight.setAttenuation(.2, .001, .001);
+	rimLight.setAmbientColor(ofFloatColor(.1, 0.1, .1));
+	rimLight.setDiffuseColor(ofFloatColor(1, 1, 1));
+	rimLight.setSpecularColor(ofFloatColor(1, 1, 1));
+	rimLight.rotate(180, ofVec3f(0, 1, 0));
+	rimLight.setPosition(ofVec3f(-4, 70, -200));
+	//gui.add(rimLightpos.setup("RimLightPosition", ofVec3f(0, 0, 0), ofVec3f(-200, -200, -200), ofVec3f(200, 200, 200)));
+
 
 }
 
@@ -134,28 +188,55 @@ void ofApp::setup(){
 // incrementally update scene (animation)
 //
 void ofApp::update() {
-    levels = levelSlider;
-    
+    //levels = levelSlider;
+	//keyLight.setPosition(keylightpos);
+	//fillLight.setPosition(filllightpos);
+	//rimLight.setPosition(rimLightpos);
+
     //particle.update();
     emitter.setPosition(burger.sys.particles[0].position);
     emitter.update();
     burger.update();
     collisionDetect();
+
+	sidecampos = burger.getPosition() + ofVec3f(0, -3, 0);
+	topcampos = burger.getPosition() + ofVec3f(0, 4, 0);
+	if (tracking) {
+		cam.setTarget(burger.getPosition());
+		cam.lookAt(burger.getPosition());
+	}
+	else if (top) {
+		cam.setPosition(topcampos);
+		cam.lookAt(burger.getPosition() + ofVec3f(0, 0, 2));
+	}
+	else if (side) {
+		cam.setPosition(sidecampos);
+		cam.setTarget(burger.getPosition() + ofVec3f(0,-10,0));
+	}
+	else {
+		cam.lookAt(burger.getPosition());
+	}
     //    burgerBBox = meshBounds(burger.model.getMesh(0));
 
 }
 //--------------------------------------------------------------
 void ofApp::draw(){
-
 //	ofBackgroundGradient(ofColor(20), ofColor(0));   // pick your own backgroujnd
 	ofBackground(ofColor::black);
 //	cout << ofGetFrameRate() << endl;
     ofSetDepthTest(false);
+    ofSetColor(255,255,255,255);
+    background.draw(0,0, 1200,1200);
     //gui.draw();
     ofSetDepthTest(true);
     
 	cam.begin();
 	ofPushMatrix();
+
+	//keyLight.draw();
+	//fillLight.draw();
+	//rimLight.draw();
+
 	if (bWireframe) {                    // wireframe mode  (include axis)
 		ofDisableLighting();
 		ofSetColor(ofColor::slateGray);
@@ -203,7 +284,8 @@ void ofApp::draw(){
     
     //draw to 5 levels
     //tree.draw(levels, currLevel);
-    
+    //tree.draw(15, currLevel);
+
  
     burger.draw();
     //particle.draw();
@@ -254,6 +336,40 @@ void ofApp::keyPressed(int key) {
 	case 'H':
 	case 'h':
         break;
+	case '1':
+		cam.disableMouseInput();
+		side = false;
+		top = false;
+		cam.setPosition(trackingpos);
+		tracking = true;
+		break;
+	case '2':
+		//top
+		cam.disableMouseInput();
+		tracking = false;
+		side = false;
+		cam.setPosition(topcampos);
+		cam.lookAt(mars.getPosition());
+		top = true;
+		break;
+	case '3':
+		//side
+		cam.disableMouseInput();
+		tracking = false;
+		top = false;
+		cam.setPosition(sidecampos);
+		cam.lookAt(cam.getPosition());
+		side = true;
+		break;
+	case '4':
+		//free
+		cam.enableMouseInput();
+		tracking = false;
+		side = false;
+		top = false;
+		cam.setPosition(ofVec3f(50, 50, 50));
+		cam.lookAt(mars.getPosition());
+		break;
     case 'I':
     case 'i':
     {
@@ -295,38 +411,46 @@ void ofApp::keyPressed(int key) {
 	case OF_KEY_DEL:
 		break;
     
-    case OF_KEY_UP:
-            emitter.start();
+        case OF_KEY_UP:
+            emitter.sys->reset();
             emitter.setRate(3);
-            emitter.setVelocity(ofVec3f(0,10,0));
-            tf->add(ofVec3f(0,-.1,0));
-            tf2->add(ofVec3f(0,.1,0));
-            //soundPlayer.play();
-        break;
-    case OF_KEY_DOWN:
+            emitter.setVelocity(ofVec3f(0,-1,0));
+            tf->add(ofVec3f(0,-.2,0));
+            tf2->set(ofVec3f(0,10,0));
             emitter.start();
+            if (!thrusterSound.isPlaying())
+                thrusterSound.play();
+            break;
+        case OF_KEY_DOWN:
+            emitter.sys->reset();
             emitter.setRate(3);
-            emitter.setVelocity(ofVec3f(0,-10,0));
-            tf->add(ofVec3f(0,.1,0));
-            tf2->add(ofVec3f(0,-.1,0));
-            //soundPlayer.play();
-        break;
-    case OF_KEY_LEFT:
+            emitter.setVelocity(ofVec3f(0,-1,0));
+            tf->add(ofVec3f(0,.2,0));
+            tf2->set(ofVec3f(0,-10,0));
             emitter.start();
-            emitter.setRate(3);
-            emitter.setVelocity(ofVec3f(-10,0,0));
-            tf->add(ofVec3f(.1,0,0));
-            tf2->add(ofVec3f(-.1,0,0));
-            //soundPlayer.play();
-        break;
-    case OF_KEY_RIGHT:
+            if (!thrusterSound.isPlaying())
+                thrusterSound.play();
+            break;
+        case OF_KEY_LEFT:
+            emitter.sys->reset();
+            emitter.setRate(20);
+            emitter.setVelocity(ofVec3f(-1,-2,0));
+            tf->add(ofVec3f(.2,0,0));
+            tf2->set(ofVec3f(-10,0,0));
             emitter.start();
-            emitter.setRate(3);
-            emitter.setVelocity(ofVec3f(10,0,0));
-            tf->add(ofVec3f(-.1,0,0));
-            tf2->add(ofVec3f(.1,0,0));
-            //soundPlayer.play();
-        break;
+            if (!thrusterSound.isPlaying())
+                thrusterSound.play();
+            break;
+        case OF_KEY_RIGHT:
+            emitter.sys->reset();
+            emitter.setRate(20);
+            emitter.setVelocity(ofVec3f(1,-2,0));
+            tf->add(ofVec3f(-.2,0,0));
+            tf2->set(ofVec3f(10,0,0));
+            emitter.start();
+            if (!thrusterSound.isPlaying())
+                thrusterSound.play();
+            break;
 	default:
 		break;
 	}
@@ -357,6 +481,38 @@ void ofApp::keyReleased(int key) {
 		break;
 	case OF_KEY_SHIFT:
 		break;
+        case OF_KEY_UP:
+            emitter.setRate(0);
+            emitter.setVelocity(ofVec3f(0,0,0));
+            tf->set(ofVec3f(0,0,0));
+            tf2->set(ofVec3f(0,0,0));
+            thrusterSound.stop();
+            emitter.sys->reset();
+            break;
+        case OF_KEY_DOWN:
+            emitter.setRate(0);
+            emitter.setVelocity(ofVec3f(0,0,0));
+            tf->set(ofVec3f(0,0,0));
+            tf2->set(ofVec3f(0,0,0));
+            thrusterSound.stop();
+            emitter.sys->reset();
+            break;
+        case OF_KEY_LEFT:
+            emitter.setRate(0);
+            emitter.setVelocity(ofVec3f(0,0,0));
+            tf->set(ofVec3f(0,0,0));
+            tf2->set(ofVec3f(0,0,0));
+            thrusterSound.stop();
+            emitter.sys->reset();
+            break;
+        case OF_KEY_RIGHT:
+            emitter.setRate(0);
+            emitter.setVelocity(ofVec3f(0,0,0));
+            tf->set(ofVec3f(0,0,0));
+            tf2->set(ofVec3f(0,0,0));
+            thrusterSound.stop();
+            emitter.sys->reset();
+            break;
 	default:
 		break;
 
@@ -654,7 +810,8 @@ void ofApp:: collisionDetect() {
     TreeNode node;
     
     if(vel == ofVec3f(0,0,0)) return;
-    if(tree.intersect (contactPt,tree.root,node)) {
+	
+    if(tree.intersect (contactPt,tree.root,node, 2)) {
         bCollision = true;
         cout << "collision" <<endl;
         
@@ -663,8 +820,11 @@ void ofApp:: collisionDetect() {
         ofVec3f f = (restitution + 1.0) * ((-vel.dot(norm))*norm);
 
         //impulseForce->apply(ofGetFrameRate() * -vel);
-        tf->set(ofVec3f(0,0,0));
-        tf2-> set(ofVec3f(0,0,0));
+        //tf->set(ofVec3f(0,0,0));
+        //tf2-> set(ofVec3f(0,0,0));
+        //gf->set(ofVec3f(0,0,0));
+        //emitter.setVelocity(ofVec3f(0,10,0));
+ 
         impulseForce->apply(ofGetFrameRate() * f);
 
 //        cout << "velocity: " <<vel <<endl;
@@ -673,6 +833,7 @@ void ofApp:: collisionDetect() {
 //        cout << "new vel: " << burger.sys.particles[0].velocity<<endl;
         emitter.stop();
     }
+	
     
 }
 

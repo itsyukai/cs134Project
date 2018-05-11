@@ -202,18 +202,22 @@ bool Octree::intersect(const Ray &ray, const TreeNode & node, TreeNode & nodeRtn
 
 // Yukai Yang
 // written to work like Jon's intersect function, but with a point instead
-bool Octree::intersect(const ofVec3f &point, const TreeNode & node, TreeNode & nodeRtn) {
+bool Octree::intersect(const ofVec3f &point, const TreeNode & node, TreeNode & nodeRtn, int margin) const{
     bool res = false;
-    if (node.box.inside(Vector3(point.x,point.y,point.z))) {
+    Vector3 min = node.box.min();
+    Vector3 max = node.box.max();
+    double temp = margin/2.0;
+    Box box(Vector3(min.x() - temp, min.y()- temp, min.z() -temp),Vector3(max.x()+temp,max.y()+temp,max.z()+temp));
+    if (box.inside(Vector3(point.x,point.y,point.z))) {
         
-        if (node.points.size() < 5 && node.points.size() > 0) {
+        if (node.points.size() < 15 && node.points.size() > 0) {
         //if (node.points.size() == 1) {
-            //cout << "Got one" << endl;
+            cout << "Got one" << endl;
             nodeRtn = node;
             return true;
         }
         for (TreeNode child : node.children) {
-            res = intersect(point, child, nodeRtn);
+            res = intersect(point, child, nodeRtn, margin);
             if (res)
                 break;
         }
