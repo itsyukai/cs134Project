@@ -22,15 +22,14 @@
 // Student Names:
 //    Jonathan Su:
 //      - Provided Octree Solution
-//      - Found Burger Models
-//      - Tested Emmitter
+//      - Found Models
+//      - Implemented Emmitter
 //    Yukai Yang
 //      - Combined Midterm and Octree Solution
-//      - Imported Burger Model
 //      - Wrote Collision detector
 //    David
 //      - Provided Midterm Solution
-//      - Tested Camera
+//      - Programmed lights and cameras
 //  Date: 04/19/2018
 
 
@@ -826,11 +825,6 @@ void ofApp:: collisionDetect() {
         //emitter.setVelocity(ofVec3f(0,10,0));
  
         impulseForce->apply(ofGetFrameRate() * f);
-
-//        cout << "velocity: " <<vel <<endl;
-//        cout << "impulse: " << f <<endl;
-//        cout << "framerate: "<< ofGetFrameRate()<<endl;
-//        cout << "new vel: " << burger.sys.particles[0].velocity<<endl;
         emitter.stop();
     }
 	
