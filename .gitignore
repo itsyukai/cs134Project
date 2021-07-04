@@ -1,0 +1,5 @@
+*.x*
+Makefile
+addons.make
+config.make
+openFrameworks-Info.plist

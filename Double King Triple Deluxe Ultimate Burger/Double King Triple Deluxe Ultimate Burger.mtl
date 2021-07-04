@@ -1,0 +1,112 @@
+# Blender3D MTL File: Double King Triple Deluxe Ultimate Burger.blend
+# Material Count: 10
+newmtl Material.041_Cheese.p_Cheese.png
+Ns 0.000000
+Ka 0.000000 0.000000 0.000000
+Kd 0.637500 0.637500 0.637500
+Ks 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd Cheese.png
+
+
+newmtl Material.042_Lettuce._Lettuce.png
+Ns 0.000000
+Ka 0.000000 0.000000 0.000000
+Kd 0.322500 0.322500 0.342500
+Ks 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd Lettuce.png
+
+
+newmtl Material.039_Round.pn_Round.png
+Ns 0.000000
+Ka 0.000000 0.000000 0.000000
+Kd 0.460000 0.460000 0.470000
+Ks 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd Round.png
+
+
+newmtl Material.044_Buns1.pn_Buns1.png
+Ns 0.000000
+Ka 0.000000 0.000000 0.000000
+Kd 0.630000 0.630000 0.637500
+Ks 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd Buns1.png
+
+
+newmtl Material.040_Balls.pn_Balls.png
+Ns 0.000000
+Ka 0.000000 0.000000 0.000000
+Kd 0.397500 0.397500 0.450000
+Ks 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd Balls.png
+
+
+newmtl Material.045_Buns2.pn_Buns2.png
+Ns 0.000000
+Ka 0.000000 0.000000 0.000000
+Kd 0.187500 0.187500 0.187500
+Ks 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd Buns2.png
+
+
+newmtl Material.046_Meat.png_Meat.png
+Ns 0.000000
+Ka 0.000000 0.000000 0.000000
+Kd 0.637500 0.637500 0.637500
+Ks 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd Meat.png
+
+
+newmtl Material.047_Buns2.pn_Buns2.png
+Ns 0.000000
+Ka 0.000000 0.000000 0.000000
+Kd 0.255000 0.255000 0.272500
+Ks 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd Buns2.png
+
+
+newmtl Material.043_Shades.p_Shades.png
+Ns 0.000000
+Ka 0.000000 0.000000 0.000000
+Kd 0.327500 0.327500 0.340000
+Ks 0.000000 0.000000 0.000000
+Ni 1.000000
+d 0.000000
+illum 2
+map_Kd Shades.png
+
+
+newmtl Material.038_Crown.pn_Crown.png
+Ns 0.000000
+Ka 0.000000 0.000000 0.000000
+Kd 0.370000 0.370000 0.412500
+Ks 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd Crown.png
+
+
